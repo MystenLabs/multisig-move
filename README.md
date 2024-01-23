@@ -55,6 +55,7 @@ module multisig::multisig_unit_tests {
         let create_multisig_address: address = ms::create_multisig_address(pks, weights, threshold);
         assert!(create_multisig_address == multisig_address, 0);
     }
+}
 ```
 
 ## License
