@@ -1,0 +1,28 @@
+{
+  "name": "multisig",
+  "version": "0.0.1",
+  "description": "multisig",
+  "scripts": {
+    "build": "npx tsc",
+    "init": "node dist/init.js",
+    "start": "node dist/index.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "env-cmd": "^10.1.0",
+    "gts": "^5.2.0",
+    "prettier": "3.1.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@mysten/bcs": "^0.9.1",
+    "@mysten/sui.js": "^0.48.1",
+    "axios": "^1.6.2",
+    "csv-parse": "^5.5.3",
+    "csv-parser": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "pino": "^8.17.1",
+    "retry-axios": "^3.1.3"
+  }
+}
