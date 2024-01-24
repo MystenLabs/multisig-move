@@ -1,0 +1,6 @@
+.DS_Store
+build
+*.log
+.trace
+.coverage_map.mvcov
+Move.lock
