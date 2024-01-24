@@ -15,12 +15,10 @@ import { logger } from "./utils/logger";
   const client = new SuiClient({
     url: fullnode,
   });
-  const packageId = process.env.PACKAGE_ID;
 
+  const packageId = process.env.PACKAGE_ID;
   const moduleName = "multisig";
 
-  logger.info("packageId", packageId);
-  logger.info("preparing transaction block");
   let transactionBlock = new TransactionBlock();
 
   // ED25519
@@ -49,17 +47,13 @@ import { logger } from "./utils/logger";
       transactionBlock.pure(2), // threshold: u16
     ],
   });
-  // transactionBlock.setGasBudget(50000000000);
 
-  let multisigAddress;
   try {
-    multisigAddress = await client.signAndExecuteTransactionBlock({
+    await client.signAndExecuteTransactionBlock({
       transactionBlock: transactionBlock,
       signer: keypair,
     });
   } catch (e) {
     logger.error(e);
   }
-  logger.info("multisigAddress", multisigAddress);
-  console.log("multisigAddress", multisigAddress);
 })();

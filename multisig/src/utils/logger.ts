@@ -1,6 +1,6 @@
 import pino from "pino";
 
 export const logger = pino({
-  name: "weather-oracle",
+  name: "multisig",
   level: "info",
 });
