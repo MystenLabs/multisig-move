@@ -51,9 +51,9 @@ module multisig::multisig_unit_tests {
         let weights: vector<u8> = vector[1, 1, 1];
         let threshold: u16 = 2;
 
-        let multisig_address: address = @0x1c4dac7fb4c01a0c608db993711c451ad655a38b7f0a9571ff099f70090263a8;
-        let create_multisig_address: address = ms::create_multisig_address(pks, weights, threshold);
-        assert!(create_multisig_address == multisig_address, 0);
+        let expected_multisig_address: address = @0x1c4dac7fb4c01a0c608db993711c451ad655a38b7f0a9571ff099f70090263a8;
+        let created_multisig_address: address = ms::create_multisig_address(pks, weights, threshold);
+        assert!(created_multisig_address == expected_multisig_address, 0);
     }
 }
 ```
