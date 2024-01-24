@@ -26,22 +26,22 @@ module multisig::multisig {
 
     /// Creates a multisig address based on the provided public keys, weights, and threshold.
     /// Returns true if the created multisig address matches the expected address.
-    public entry fun create_multisig_address_entry(
+    public entry fun check_multisig_address_eq(
         pks: vector<vector<u8>>,
         weights: vector<u8>,
         threshold: u16,
         expected_address: address,
     ): bool {
-        let ms_address = create_multisig_address(pks, weights, threshold);
+        let ms_address = derive_multisig_address_quiet(pks, weights, threshold);
         return (ms_address == expected_address)
     }
 
-    /// Creates a multisig address.
+    /// Derives a multisig address. No events are emitted.
     /// pks - The public keys of the signers.
     /// weights - The weights assigned to each signer.
-    /// threshold - The minimum number of signers required to approve a transaction.
+    /// threshold - The minimum amount of weight required for a valid approval.
     /// Returns The multisig address.
-    public fun create_multisig_address(
+    public fun derive_multisig_address_quiet(
         pks: vector<vector<u8>>,
         weights: vector<u8>,
         threshold: u16,
@@ -54,7 +54,7 @@ module multisig::multisig {
         let weights_len = vector::length(&weights);
 
         // Check that the lengths of pks and weights are equal
-        assert!(vector::length(&pks) == vector::length(&weights), ELengthsOfPksAndWeightsAreNotEqual);
+        assert!(pks_len == weights_len, ELengthsOfPksAndWeightsAreNotEqual);
 
         // Check that the threshold is positive and not greater than the sum of weights
         let sum: u16 = 0;
@@ -68,6 +68,7 @@ module multisig::multisig {
 
         // Update the hasher with the MultiSig flag, threshold, and public keys
         vector::push_back(&mut hash_data, multiSigFlag);
+
         // Serialized threshold and append to the hash_data vector.
         let threshold_bytes: vector<u8> = bcs::to_bytes(&threshold);
         vector::append(&mut hash_data, threshold_bytes);
@@ -83,6 +84,20 @@ module multisig::multisig {
         };
 
         let ms_address = address::from_bytes(blake2b256(&hash_data));
+        ms_address
+    }
+
+    /// Derives a multisig address, and emit an event with all the parameters.
+    /// pks - The public keys of the signers.
+    /// weights - The weights assigned to each signer.
+    /// threshold - The minimum amount of weight required for a valid approval.
+    /// Returns The multisig address.
+    public fun derive_multisig_address(
+        pks: vector<vector<u8>>,
+        weights: vector<u8>,
+        threshold: u16,
+    ): address {
+        let ms_address = derive_multisig_address_quiet(pks, weights, threshold);
         event::emit(
             MultisigAddressEvent{
                 pks,
@@ -90,6 +105,7 @@ module multisig::multisig {
                 threshold,
                 multisig_address: ms_address,
             });
+            let ms_address = derive_multisig_address_quiet(pks, weights, threshold);
         ms_address
     }
 
@@ -101,8 +117,7 @@ module multisig::multisig {
         threshold: u16,
         ctx: &mut TxContext
     ): bool {
-        let ms_address = create_multisig_address(pks, weights, threshold);
-        return (ms_address == tx_context::sender(ctx))
+        check_multisig_address_eq(pks, weights, threshold, tx_context::sender(ctx))        
     }
 
     /// Converts an Ed25519 public key to an address.

@@ -6,7 +6,7 @@ module multisig::multisig_unit_tests {
     use multisig::multisig::{Self as ms};
 
     #[test]
-    fun test_create_multisig_address() {
+    fun test_derive_multisig_address() {
         // ED25519
         let _address1: address = @0x73a6b3c33e2d63383de5c6786cbaca231ff789f4c853af6d54cb883d8780adc0;
         let key1: vector<u8> = vector[0, 13, 125, 171, 53, 140, 141, 173, 170, 78, 250, 0, 73, 167, 91, 7, 67, 101, 85, 177, 10, 54, 130, 25, 187, 104, 15, 112, 87, 19, 73, 215, 117];
@@ -24,7 +24,7 @@ module multisig::multisig_unit_tests {
         let threshold: u16 = 2;
 
         let expected_multisig_address: address = @0x1c4dac7fb4c01a0c608db993711c451ad655a38b7f0a9571ff099f70090263a8;
-        let created_multisig_address: address = ms::create_multisig_address(pks, weights, threshold);
+        let created_multisig_address: address = ms::derive_multisig_address(pks, weights, threshold);
         assert!(created_multisig_address == expected_multisig_address, 0);
     }
 
