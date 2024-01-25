@@ -2,10 +2,10 @@
 # Multi-Sig Sui Address Creator / Checker Module
 
 ## Description
-This Move language module, `multisig::multisig` provides a set of functions to generate a Sui blockchain address from multi-signature public keys. The main function, `create_multisig_address`, takes a set of public keys (pks), corresponding weights, and a threshold to generate a Sui blockchain address. This module is useful for scenarios where identifying the type of sender in Sui transactions is critical, such as verifying multi-signature schemes and their thresholds.
+This Move language module, `multisig::multisig` provides a set of functions to generate a Sui blockchain address from multi-signature public keys. The main function, `derive_multisig_address`, takes a set of public keys (pks), corresponding weights, and a threshold to generate a Sui blockchain address. This module is useful for scenarios where identifying the type of sender in Sui transactions is critical, such as verifying multi-signature schemes and their thresholds.
 
 ## Features
-- **`create_multisig_address`:** Generates a Sui blockchain address from multi-signature public keys.
+- **`derive_multisig_address`:** Generates a Sui blockchain address from multi-signature public keys.
 - **`ed25519_key_to_address`, `secp256k1_key_to_address`, `secp256r1_key_to_address`:** Functions to create addresses from different types of public keys.
 - **`test_address`:** A test function to validate the module in a transaction context.
 
@@ -34,7 +34,7 @@ module multisig::multisig_unit_tests {
     use multisig::multisig::{Self as ms};
 
     #[test]
-    fun test_create_multisig_address() {
+    fun test_derive_multisig_address() {
         // ED25519
         let _address1: address = @0x73a6b3c33e2d63383de5c6786cbaca231ff789f4c853af6d54cb883d8780adc0;
         let key1: vector<u8> = vector[0, 13, 125, 171, 53, 140, 141, 173, 170, 78, 250, 0, 73, 167, 91, 7, 67, 101, 85, 177, 10, 54, 130, 25, 187, 104, 15, 112, 87, 19, 73, 215, 117];
@@ -52,8 +52,8 @@ module multisig::multisig_unit_tests {
         let threshold: u16 = 2;
 
         let expected_multisig_address: address = @0x1c4dac7fb4c01a0c608db993711c451ad655a38b7f0a9571ff099f70090263a8;
-        let created_multisig_address: address = ms::create_multisig_address(pks, weights, threshold);
-        assert!(created_multisig_address == expected_multisig_address, 0);
+        let derived_multisig_address: address = ms::derive_multisig_address(pks, weights, threshold);
+        assert!(derived_multisig_address == expected_multisig_address, 0);
     }
 }
 ```
