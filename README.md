@@ -24,7 +24,7 @@ This Move language module, `multisig::multisig` provides a set of functions to g
 
 3. **Call the Function:**
    ```move
-   let multisig_address = multisig::multisig::create_multisig_address(public_keys, weights, threshold);
+   let multisig_address = multisig::multisig::derive_multisig_address(public_keys, weights, threshold);
    ```
 
 ## Example
