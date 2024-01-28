@@ -16,6 +16,8 @@ module multisig::multisig {
     /// Error code indicating that the threshold is positive and not greater than the sum of weights.
     const EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights: u64 = 1;
 
+    const ENoPermutationMatchesTheExpectedAddress: u64 = 2;
+
     /// Event emitted when a multisig address is created.
     struct MultisigAddressEvent has copy, drop {
         pks: vector<vector<u8>>,
@@ -160,6 +162,127 @@ module multisig::multisig {
         assert!(vector::length(pk) == length, 0);
         assert!(*vector::borrow(pk, 0) == flag, 1);
         address::from_bytes(sui::hash::blake2b256(pk))
+    }
+
+    /// This function orders the public keys (pks) in all possible permutations and checks if the derived multisig address matches the expected multisig address.
+    /// It takes the expected multisig address, a vector of public keys (pks), a vector of weights corresponding to the public keys, and a threshold value as input.
+    /// The function returns the ordered public keys (pks) if a permutation matches the expected multisig address.
+    /// If no permutation matches the expected multisig address, it aborts with an error.
+    ///
+    /// Parameters:
+    /// - extected_ms_address: The expected multisig address to match.
+    /// - pks: A vector of vectors containing the public keys.
+    /// - weights: A vector of weights corresponding to the public keys.
+    /// - threshold: The threshold value for multisig.
+    ///
+    /// Returns:
+    /// - A vector of vectors containing the ordered public keys (pks) if a permutation matches the expected multisig address.
+    ///
+    /// Abort:
+    /// - ENoPermutationMatchesTheExpectedAddress: If no permutation matches the expected multisig address.
+    public fun order_pks(
+        extected_ms_address: address,
+        pks: vector<vector<u8>>,
+        weights: vector<u8>,
+        threshold: u16,
+    ): vector<vector<u8>> {
+        // loop through all the permutations of the pks vector
+        let perms = permutations(pks);
+        let n = vector::length(&perms);
+        let i = 0;
+        while (i < n) {
+            let perm: vector<vector<u8>> = *vector::borrow(&perms, i);
+            let ms_address = derive_multisig_address_quiet(perm, weights, threshold);
+            // check if the ms_address matches the expected one
+            if (ms_address == extected_ms_address) {
+                return perm
+            };
+            i = i + 1;
+        };
+
+        abort ENoPermutationMatchesTheExpectedAddress
+    }
+
+    /// Generates all possible permutations of a vector of vectors.
+    ///
+    /// This function takes a vector of vectors `pks` as input and generates all possible permutations of the vectors in `pks`.
+    /// The function uses a modified version of the Heap's algorithm to generate the permutations.
+    /// It initializes an empty vector `perms` to store the permutations and a vector `c` to encode the stack state.
+    /// The function iterates through the vectors in `pks` and swaps elements based on the parity of the iteration index.
+    /// It outputs each new permutation and increments the stack state accordingly.
+    /// Finally, it returns the vector `perms` containing all the generated permutations.
+    ///
+    /// # Arguments
+    ///
+    /// * `pks` - A vector of vectors representing the input vectors to generate permutations for.
+    ///
+    /// # Returns
+    ///
+    /// A vector of vectors representing all possible permutations of the input vectors.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let pks = vector[
+    ///     vector[1, 2, 3],
+    ///     vector[4, 5],
+    ///     vector[6, 7, 8, 9]
+    /// ];
+    ///
+    /// let perms = permutations(pks);
+    ///
+    /// assert!(vector::length(&perms) == 6, 0);
+    /// assert!(*vector::borrow(&perms, 0) == vector[1, 2, 3], 0);
+    /// assert!(*vector::borrow(&perms, 1) == vector[4, 5], 0);
+    /// assert!(*vector::borrow(&perms, 2) == vector[6, 7, 8, 9], 0);
+    /// assert!(*vector::borrow(&perms, 3) == vector[2, 1, 3], 0);
+    /// assert!(*vector::borrow(&perms, 4) == vector[5, 4], 0);
+    /// assert!(*vector::borrow(&perms, 5) == vector[7, 6, 8, 9], 0);
+    /// ```
+    public fun permutations(
+        pks: vector<vector<u8>>,
+    ): vector<vector<vector<u8>>> {
+        // initialize an empty vector to store the permutations
+        let perms = vector::empty<vector<vector<u8>>>();
+        // get the length of the pks vector
+        let n = vector::length(&pks);
+        // c is an encoding of the stack state. c[k] encodes the for-loop counter for when permutations(k - 1, pks) is called
+        let c = vector::empty<u64>();
+        // initialize c with zeros
+        let i = 0;
+        while (i < n) {
+            vector::push_back(&mut c, 0);
+            i = i + 1
+        };
+        // output the first permutation
+        vector::push_back(&mut perms, pks);
+        // i acts similarly to a stack pointer
+        i = 1;
+        // loop until i is equal to n
+        while (i < n) {
+            // check if c[i] is less than i
+            if (*vector::borrow(&c, i) < i) {
+                // swap elements depending on the parity of i
+                if (i % 2 == 0) {
+                    vector::swap(&mut pks, 0, i);
+                } else {
+                    vector::swap(&mut pks, *vector::borrow(&c, (i as u64)), i);
+                };
+                // output the new permutation
+                vector::push_back(&mut perms, pks);
+                // increment c[i] by 1
+                *vector::borrow_mut(&mut c, i) = *vector::borrow(&c, i) + 1;
+                // reset i to 1
+                i = 1;
+            } else {
+                // reset c[i] to 0, c[i] = 0;
+                *vector::borrow_mut(&mut c, i) = 0;
+                // increment i by 1
+                i = i + 1;
+            };
+        };
+        // return the perms vector
+        perms
     }
 
 }
