@@ -16,6 +16,7 @@ module multisig::multisig {
     /// Error code indicating that the threshold is positive and not greater than the sum of weights.
     const EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights: u64 = 1;
 
+    /// Error code indicating that no permutation matches the expected multisig address.
     const ENoPermutationMatchesTheExpectedAddress: u64 = 2;
 
     /// Event emitted when a multisig address is created.
