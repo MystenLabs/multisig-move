@@ -189,7 +189,7 @@ module multisig::multisig {
         threshold: u16,
     ): vector<vector<u8>> {
         // loop through all the permutations of the pks vector
-        let perms = utils::permutations(pks);
+        let perms = utils::permutations(&mut pks);
         let n = vector::length(&perms);
         let i = 0;
         while (i < n) {

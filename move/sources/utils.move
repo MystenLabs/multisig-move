@@ -41,13 +41,13 @@ module multisig::utils {
     /// assert!(*vector::borrow(&perms, 4) == vector[5, 4], 0);
     /// assert!(*vector::borrow(&perms, 5) == vector[7, 6, 8, 9], 0);
     /// ```
-    public fun permutations(
-        pks: vector<vector<u8>>,
-    ): vector<vector<vector<u8>>> {
+    public fun permutations<T: copy>(
+        pks: &mut vector<T>,
+    ): vector<vector<T>> {
         // initialize an empty vector to store the permutations
-        let perms = vector::empty<vector<vector<u8>>>();
+        let perms = vector::empty<vector<T>>();
         // get the length of the pks vector
-        let n = vector::length(&pks);
+        let n = vector::length(pks);
         // c is an encoding of the stack state. c[k] encodes the for-loop counter for when permutations(k - 1, pks) is called
         let c = vector::empty<u64>();
         // initialize c with zeros
@@ -57,7 +57,7 @@ module multisig::utils {
             i = i + 1
         };
         // output the first permutation
-        vector::push_back(&mut perms, pks);
+        vector::push_back(&mut perms, *pks);
         // i acts similarly to a stack pointer
         i = 1;
         // loop until i is equal to n
@@ -66,12 +66,12 @@ module multisig::utils {
             if (*vector::borrow(&c, i) < i) {
                 // swap elements depending on the parity of i
                 if (i % 2 == 0) {
-                    vector::swap(&mut pks, 0, i);
+                    vector::swap(pks, 0, i);
                 } else {
-                    vector::swap(&mut pks, *vector::borrow(&c, (i as u64)), i);
+                    vector::swap(pks, *vector::borrow(&c, (i as u64)), i);
                 };
                 // output the new permutation
-                vector::push_back(&mut perms, pks);
+                vector::push_back(&mut perms, *pks);
                 // increment c[i] by 1
                 *vector::borrow_mut(&mut c, i) = *vector::borrow(&c, i) + 1;
                 // reset i to 1

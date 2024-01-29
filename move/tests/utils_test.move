@@ -13,7 +13,7 @@ module multisig::utils_unit_tests {
         let secp256r1_key: vector<u8> = vector[2, 3, 71, 251, 175, 35, 240, 56, 171, 196, 195, 8, 162, 113, 17, 122, 42, 76, 255, 174, 221, 188, 95, 248, 28, 117, 23, 188, 108, 116, 167, 237, 180, 48];
 
         let pks: vector<vector<u8>> = vector[ed25519_key, secp256k1_key, secp256r1_key];
-        let permutations: vector<vector<vector<u8>>> = utils::permutations(pks);
+        let permutations: vector<vector<vector<u8>>> = utils::permutations(&mut pks);
 
         assert!(vector::length(&permutations) == 6, 0);
         assert!(*vector::borrow(&permutations, 0) == vector[ed25519_key, secp256k1_key, secp256r1_key], 0);
