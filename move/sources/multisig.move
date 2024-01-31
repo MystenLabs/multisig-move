@@ -172,7 +172,7 @@ module multisig::multisig {
     /// If no permutation matches the expected multisig address, it aborts with an error.
     ///
     /// Parameters:
-    /// - extected_ms_address: The expected multisig address to match.
+    /// - expected_ms_address: The expected multisig address to match.
     /// - pks: A vector of vectors containing the public keys.
     /// - weights: A vector of weights corresponding to the public keys.
     /// - threshold: The threshold value for multisig.
@@ -183,7 +183,7 @@ module multisig::multisig {
     /// Abort:
     /// - ENoPermutationMatchesTheExpectedAddress: If no permutation matches the expected multisig address.
     public fun order_pks(
-        extected_ms_address: address,
+        expected_ms_address: address,
         pks: vector<vector<u8>>,
         weights: vector<u8>,
         threshold: u16,
@@ -196,7 +196,7 @@ module multisig::multisig {
             let perm: vector<vector<u8>> = *vector::borrow(&perms, i);
             let ms_address = derive_multisig_address_quiet(perm, weights, threshold);
             // check if the ms_address matches the expected one
-            if (ms_address == extected_ms_address) {
+            if (ms_address == expected_ms_address) {
                 return perm
             };
             i = i + 1;
