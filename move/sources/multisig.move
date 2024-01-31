@@ -9,12 +9,16 @@ module multisig::multisig {
     use sui::hash::blake2b256;
     use sui::tx_context::{Self, TxContext};
     use std::vector;
+    use multisig::utils;
 
     /// Error code indicating that the lengths of public keys and weights are not equal.
     const ELengthsOfPksAndWeightsAreNotEqual: u64 = 0;
 
     /// Error code indicating that the threshold is positive and not greater than the sum of weights.
     const EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights: u64 = 1;
+
+    /// Error code indicating that no permutation matches the expected multisig address.
+    const ENoPermutationMatchesTheExpectedAddress: u64 = 2;
 
     /// Event emitted when a multisig address is created.
     struct MultisigAddressEvent has copy, drop {
@@ -160,6 +164,45 @@ module multisig::multisig {
         assert!(vector::length(pk) == length, 0);
         assert!(*vector::borrow(pk, 0) == flag, 1);
         address::from_bytes(sui::hash::blake2b256(pk))
+    }
+
+    /// This function orders the public keys (pks) in all possible permutations and checks if the derived multisig address matches the expected multisig address.
+    /// It takes the expected multisig address, a vector of public keys (pks), a vector of weights corresponding to the public keys, and a threshold value as input.
+    /// The function returns the ordered public keys (pks) if a permutation matches the expected multisig address.
+    /// If no permutation matches the expected multisig address, it aborts with an error.
+    ///
+    /// Parameters:
+    /// - expected_ms_address: The expected multisig address to match.
+    /// - pks: A vector of vectors containing the public keys.
+    /// - weights: A vector of weights corresponding to the public keys.
+    /// - threshold: The threshold value for multisig.
+    ///
+    /// Returns:
+    /// - A vector of vectors containing the ordered public keys (pks) if a permutation matches the expected multisig address.
+    ///
+    /// Abort:
+    /// - ENoPermutationMatchesTheExpectedAddress: If no permutation matches the expected multisig address.
+    public fun order_pks(
+        expected_ms_address: address,
+        pks: vector<vector<u8>>,
+        weights: vector<u8>,
+        threshold: u16,
+    ): vector<vector<u8>> {
+        // loop through all the permutations of the pks vector
+        let perms = utils::permutations(&mut pks);
+        let n = vector::length(&perms);
+        let i = 0;
+        while (i < n) {
+            let perm: vector<vector<u8>> = *vector::borrow(&perms, i);
+            let ms_address = derive_multisig_address_quiet(perm, weights, threshold);
+            // check if the ms_address matches the expected one
+            if (ms_address == expected_ms_address) {
+                return perm
+            };
+            i = i + 1;
+        };
+
+        abort ENoPermutationMatchesTheExpectedAddress
     }
 
 }
