@@ -17,7 +17,7 @@ module multisig::multisig {
     const EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights: u64 = 1;
 
     /// Event emitted when a multisig address is created.
-    struct MultisigAddressEvent has copy, drop {
+    public struct MultisigAddressEvent has copy, drop {
         pks: vector<vector<u8>>,
         weights: vector<u8>,
         threshold: u16,
@@ -48,7 +48,7 @@ module multisig::multisig {
     ): address {
         // Define a u8 variable `multiSigFlag` and initialize it with the value 0x03.
         let multiSigFlag :u8 = 0x03;    // MultiSig: 0x03,
-        let hash_data = vector::empty<u8>();
+        let mut hash_data = vector::empty<u8>();
 
         let pks_len = vector::length(&pks);
         let weights_len = vector::length(&weights);
@@ -57,8 +57,8 @@ module multisig::multisig {
         assert!(pks_len == weights_len, ELengthsOfPksAndWeightsAreNotEqual);
 
         // Check that the threshold is positive and not greater than the sum of weights
-        let sum: u16 = 0;
-        let i = 0;
+        let mut sum: u16 = 0;
+        let mut i = 0;
         while (i < weights_len) {
             let w = (*vector::borrow(&weights, i) as u16);
             sum = sum + w;
@@ -74,7 +74,7 @@ module multisig::multisig {
         vector::append(&mut hash_data, threshold_bytes);
 
         // Iterate over the `pks` and `weights` vectors and appends the elements to `hash_data`/
-        let i = 0;
+        let mut i = 0;
         while (i < pks_len) {
             let pk = vector::borrow(&pks, i);
             let w = vector::borrow(&weights, i);
