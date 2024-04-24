@@ -14,6 +14,9 @@ module multisig::multisig {
     /// Error code indicating that the threshold is positive and not greater than the sum of weights.
     const EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights: u64 = 1;
 
+    const EPublicKeyLength: u64 = 2;
+    const EPublicKeyFlag: u64 = 3;
+
     /// Event emitted when a multisig address is created.
     public struct MultisigAddressEvent has copy, drop {
         pks: vector<vector<u8>>,
@@ -153,8 +156,8 @@ module multisig::multisig {
         length: u64,
         flag: u8,
     ): address {
-        assert!(pk.length() == length, 0);
-        assert!(pk[0] == flag, 1);
+        assert!(pk.length() == length, EPublicKeyLength);
+        assert!(pk[0] == flag, EPublicKeyFlag);
         address::from_bytes(blake2b256(pk))
     }
 
