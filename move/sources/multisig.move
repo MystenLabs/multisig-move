@@ -155,7 +155,7 @@ module multisig::multisig {
     ): address {
         assert!(pk.length() == length, 0);
         assert!(pk[0] == flag, 1);
-        address::from_bytes(sui::hash::blake2b256(pk))
+        address::from_bytes(blake2b256(pk))
     }
 
 }
