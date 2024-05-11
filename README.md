@@ -1,8 +1,18 @@
 
 # Multi-Sig Sui Address Creator / Checker Module
 
-## Description
-This Move language module, `multisig::multisig` provides a set of functions to generate a Sui blockchain address from multi-signature public keys. The main function, `derive_multisig_address`, takes a set of public keys (pks), corresponding weights, and a threshold to generate a Sui blockchain address. This module is useful for scenarios where identifying the type of sender in Sui transactions is critical, such as verifying multi-signature schemes and their thresholds.
+Multi-signature (multi-sig) wallets and accounts allow for enhanced key management by enabling either multiple parties to access shared assets under predefined conditions, or a single user to implement additional security measures. For example, a multi-sig wallet could be used to manage a decentralized autonomous organization’s (DAO) treasury, requiring consent from a certain percentage of members before executing transactions, or it could serve an individual seeking extra protection by distributing access across multiple devices or locations.
+
+Sui native multi-sig wallets offer a plethora of applications. They can be used to create interactive game elements or commerce platforms that necessitate collective user actions for access. Establishing a user quorum or other conditions for access ensures that digital assets remain protected against unauthorized use by any individual key/member.
+
+The Sui Move multi-sig smart contract detailed in this article confirms whether a Sui address is multi-sig and accommodates various key combinations, such as 2-of-3 or any M-of-N. Integrating multisig functionality directly into smart contracts, rather than through SDKs, provides distinct benefits. This method grants developers precise control over access and authorization within the contract’s logic, allowing them to stipulate specific conditions—like signatures from a designated subset of addresses—before permitting function execution. Such detailed control bolsters security by guarding against unsanctioned changes to the contract or asset transfers.
+
+Incorporating multisig directly into smart contracts is pivotal for creating secure and resilient applications with adaptable governance models. This fosters a foundation of trust and cooperation within decentralized networks.
+
+On-chain multisig is crucial because it offers transparency and verifiability in decentralized operations. It ensures that actions, such as executing smart contract functions, are only performed when they meet the agreed-upon criteria among stakeholders. For example, knowing if the caller of a smart contract function is a multi-sig address allows for the implementation of nuanced constraints. If a transaction is signed by 3 out of 5 members, up to 1,000 coins could be moved. Conversely, if only 1 out of 5 members signs, the transaction limit could be set to 100 coins. This flexibility in setting transaction thresholds based on the level of consensus provides a balance between security and functionality, making on-chain multisig an indispensable feature for collective asset management and decision-making in the blockchain space.
+
+## Module Description
+This Move language module, `multisig::multisig` provides a set of functions to generate and verify that a Sui blockchain account is a multi-signature address. The main function, `derive_multisig_address`, takes a set of public keys (pks), corresponding weights, and a threshold to generate a Sui blockchain address. This module is useful for scenarios where identifying the type of sender in Sui transactions is critical, such as verifying multi-signature schemes and their thresholds.
 
 ## Features
 - **`derive_multisig_address`:** Generates a Sui blockchain address from multi-signature public keys.
