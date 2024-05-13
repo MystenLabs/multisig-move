@@ -7,8 +7,6 @@ module multisig::multisig {
     use sui::bcs;
     use sui::event;
     use sui::hash::blake2b256;
-    use sui::tx_context::{Self, TxContext};
-    use std::vector;
 
     /// Error code indicating that the lengths of public keys and weights are not equal.
     const ELengthsOfPksAndWeightsAreNotEqual: u64 = 0;
@@ -16,8 +14,11 @@ module multisig::multisig {
     /// Error code indicating that the threshold is positive and not greater than the sum of weights.
     const EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights: u64 = 1;
 
+    const EPublicKeyLength: u64 = 2;
+    const EPublicKeyFlag: u64 = 3;
+
     /// Event emitted when a multisig address is created.
-    struct MultisigAddressEvent has copy, drop {
+    public struct MultisigAddressEvent has copy, drop {
         pks: vector<vector<u8>>,
         weights: vector<u8>,
         threshold: u16,
@@ -48,38 +49,36 @@ module multisig::multisig {
     ): address {
         // Define a u8 variable `multiSigFlag` and initialize it with the value 0x03.
         let multiSigFlag :u8 = 0x03;    // MultiSig: 0x03,
-        let hash_data = vector::empty<u8>();
+        let mut hash_data = vector<u8>[];
 
-        let pks_len = vector::length(&pks);
-        let weights_len = vector::length(&weights);
+        let pks_len = pks.length();
+        let weights_len = weights.length();
 
         // Check that the lengths of pks and weights are equal
         assert!(pks_len == weights_len, ELengthsOfPksAndWeightsAreNotEqual);
 
         // Check that the threshold is positive and not greater than the sum of weights
-        let sum: u16 = 0;
-        let i = 0;
+        let mut sum: u16 = 0;
+        let mut i = 0;
         while (i < weights_len) {
-            let w = (*vector::borrow(&weights, i) as u16);
+            let w = weights[i] as u16;
             sum = sum + w;
             i = i + 1;
         };
         assert!(threshold > 0 && threshold <= sum, EThresholdIsPositiveAndNotGreaterThanTheSumOfWeights);
 
         // Update the hasher with the MultiSig flag, threshold, and public keys
-        vector::push_back(&mut hash_data, multiSigFlag);
+        hash_data.push_back(multiSigFlag);
 
         // Serialized threshold and append to the hash_data vector.
-        let threshold_bytes: vector<u8> = bcs::to_bytes(&threshold);
-        vector::append(&mut hash_data, threshold_bytes);
+        let threshold_bytes = bcs::to_bytes(&threshold);
+        hash_data.append(threshold_bytes);
 
         // Iterate over the `pks` and `weights` vectors and appends the elements to `hash_data`/
-        let i = 0;
+        let mut i = 0;
         while (i < pks_len) {
-            let pk = vector::borrow(&pks, i);
-            let w = vector::borrow(&weights, i);
-            vector::append(&mut hash_data, *pk);
-            vector::push_back(&mut hash_data, *w);
+            hash_data.append(pks[i]);
+            hash_data.push_back(weights[i]);
             i = i + 1;
         };
 
@@ -117,7 +116,7 @@ module multisig::multisig {
         threshold: u16,
         ctx: &mut TxContext
     ): bool {
-        check_multisig_address_eq(pks, weights, threshold, tx_context::sender(ctx))        
+        check_multisig_address_eq(pks, weights, threshold, ctx.sender())        
     }
 
     /// Converts an Ed25519 public key to an address.
@@ -157,9 +156,9 @@ module multisig::multisig {
         length: u64,
         flag: u8,
     ): address {
-        assert!(vector::length(pk) == length, 0);
-        assert!(*vector::borrow(pk, 0) == flag, 1);
-        address::from_bytes(sui::hash::blake2b256(pk))
+        assert!(pk.length() == length, EPublicKeyLength);
+        assert!(pk[0] == flag, EPublicKeyFlag);
+        address::from_bytes(blake2b256(pk))
     }
 
 }
