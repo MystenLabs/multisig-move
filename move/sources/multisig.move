@@ -146,6 +146,15 @@ module multisig::multisig {
         address_from_bytes(pk, 34, 0x02)
     }
 
+    /// Converts a ZKLoginPublicIdentifier to an address.
+    /// identifier - The ZKLoginPublicIdentifier including the 0x05 scheme flag.
+    /// Returns the address.
+    public fun zklogin_public_identifier_to_address(
+        identifier: &vector<u8>,
+    ): address {
+        address_from_bytes(identifier, identifier.length(), 0x05)
+    }
+
     /// Converts a public key to an address.
     /// pk - The public key.
     /// length - The expected length of the public key.
