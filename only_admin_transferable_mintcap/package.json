@@ -1,0 +1,24 @@
+{
+  "name": "only_admin_transferable_mintcap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mysten/bcs": "^0.11.1",
+    "@mysten/sui.js": "^0.54.1",
+    "blake2": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/blake2": "^4.0.4",
+    "@types/lodash": "^4.17.4",
+    "@types/node": "^20.12.12"
+  }
+}
