@@ -27,7 +27,8 @@ module multisig::multisig {
 
     /// Creates a multisig address based on the provided public keys, weights, and threshold.
     /// Returns true if the created multisig address matches the expected address.
-    public entry fun check_multisig_address_eq(
+    #[allow(lint(unneeded_return))]
+    public  fun check_multisig_address_eq(
         pks: vector<vector<u8>>,
         weights: vector<u8>,
         threshold: u16,
